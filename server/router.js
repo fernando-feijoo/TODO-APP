@@ -19,13 +19,13 @@ router.get("/ping", async (req, res) => {
 // Create a new TODO item
 router.post("/todos", async (req, res) => {
   try {
-    const { title, description, completed, user_id, category_id } = req.body;
+    const { title, description, category, completed } = req.body;
     const query = `
-            INSERT INTO TodoItems (title, description, completed, user_id, category_id)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO TodoItems (title, description, category, completed)
+            VALUES ($1, $2, $3, $4)
             RETURNING *
         `;
-    const values = [title, description, completed, user_id, category_id];
+    const values = [title, description, category, completed];
     const result = await pool.query(query, values);
     res.json(result.rows[0]);
   } catch (error) {
@@ -42,31 +42,22 @@ router.get("/todos", async (req, res) => {
     res.json(result.rows);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ error: "Error retrieving the list of TODO items" });
+    res.status(500).json({ error: "Error retrieving the list of TODO items" });
   }
 });
 
 // Update an existing TODO item
 router.put("/todos/:id", async (req, res) => {
   try {
-    const { title, description, completed, user_id, category_id } = req.body;
+    const { title, description, category, completed } = req.body;
     const todoId = req.params.id;
     const query = `
             UPDATE TodoItems
-            SET title = $1, description = $2, completed = $3, user_id = $4, category_id = $5
-            WHERE todo_id = $6
+            SET title = $1, description = $2, category = $3, completed = $4
+            WHERE todo_id = $5
             RETURNING *
         `;
-    const values = [
-      title,
-      description,
-      completed,
-      user_id,
-      category_id,
-      todoId,
-    ];
+    const values = [title, description, category, completed, todoId];
     const result = await pool.query(query, values);
     res.json(result.rows[0]);
   } catch (error) {
