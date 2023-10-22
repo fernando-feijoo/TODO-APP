@@ -1,23 +1,21 @@
-import express from 'express'
-import { config } from 'dotenv'
-import pg from 'pg'
+import express from 'express';
+import { config } from 'dotenv';
+import pg from 'pg';
+import router from './router.js';
 
-config()
+config();
 
-const app = express()
+const app = express();
 const pool = new pg.Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.SSL_ENABLED === 'true' ? true : false
-})
+});
 
-app.get('/', (req, res) => {
-    res.send('Hola mundo')
-})
 
-app.get('/ping', async (req, res) => {
-    const result = await pool.query('SELECT NOW()')
-    return res.json(result.rows[0])
-})
+app.use('/', router);
+app.use('/ping', router);
 
-app.listen(3000)
-console.log('Server on port ', 3000)
+app.listen(3000);
+console.log('Server on port ', 3000);
+
+export default pool;
