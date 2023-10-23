@@ -139,7 +139,7 @@ function App() {
                 Edit
               </button>
 
-              <button className="btn btn-info m-2" onClick={add}>
+              <button className="btn btn-info m-2" onClick={resetForm}>
                 Cancel
               </button>
             </div>
