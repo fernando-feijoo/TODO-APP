@@ -12,18 +12,17 @@ function App() {
   const [todoList, setTodoList] = useState([]);
 
   const getTodoList = () => {
-    Axios.get("http://localhost:4000/todos").then((response) => {
+    Axios.get(process.env.REACT_APP_LOCALHOST).then((response) => {
       setTodoList(response.data);
     });
   };
 
   const add = () => {
-    const completedValue = status === "on";
-    Axios.post("http://localhost:4000/todos", {
+    Axios.post(process.env.REACT_APP_LOCALHOST, {
       title: title,
       description: description,
       category: category,
-      completed: completedValue,
+      completed: status,
     })
       .then(() => {
         getTodoList();
@@ -51,45 +50,69 @@ function App() {
       </div>
       <div className="card text-center">
         <div className="card-header">Form TODO list!</div>
-        <div className="card-body"></div>
-        <label>
-          Title:{" "}
-          <input
-            onChange={(event) => {
-              setTitle(event.target.value);
-            }}
-            type="text"
-          />
-        </label>
-        <label>
-          Description:{" "}
-          <input
-            onChange={(event) => {
-              setDescription(event.target.value);
-            }}
-            type="text"
-          />
-        </label>
-        <label>
-          Category:{" "}
-          <input
-            onChange={(event) => {
-              setCategory(event.target.value);
-            }}
-            type="text"
-          />
-        </label>
-        <label>
-          Completed/Incomplete:{" "}
-          <input
-            onChange={(event) => {
-              setStatus(event.target.value);
-            }}
-            type="checkbox"
-          />
-        </label>
+        <div className="card-body">
+          <div className="input-group mb-3">
+            <span className="input-group-text" id="basic-addon1">
+              Title:
+            </span>
+            <input
+              type="text"
+              onChange={(event) => {
+                setTitle(event.target.value);
+              }}
+              className="form-control"
+              placeholder="Title"
+              aria-label="Username"
+              aria-describedby="basic-addon1"
+            />
+          </div>
+
+          <div className="input-group mb-3">
+            <span className="input-group-text" id="basic-addon1">
+              Description:
+            </span>
+            <input
+              type="text"
+              onChange={(event) => {
+                setDescription(event.target.value);
+              }}
+              className="form-control"
+              placeholder="Description"
+              aria-label="Username"
+              aria-describedby="basic-addon1"
+            />
+          </div>
+
+          <div className="input-group mb-3">
+            <span className="input-group-text" id="basic-addon1">
+              Category:
+            </span>
+            <input
+              type="text"
+              onChange={(event) => {
+                setCategory(event.target.value);
+              }}
+              className="form-control"
+              placeholder="Category"
+              aria-label="Username"
+              aria-describedby="basic-addon1"
+            />
+          </div>
+
+          <div className="form-check">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              onChange={(event) => {
+                setStatus(event.target.checked);
+              }}
+              value=""
+            />
+            <label className="form-check-label">Completed/Incomplete</label>
+          </div>
+        </div>
       </div>
-      <div className="card-footer text-muted">
+      <div className="card-footer text-muted mt-3">
         <button className="btn btn-success" onClick={add}>
           Save
         </button>
