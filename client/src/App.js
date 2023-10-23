@@ -12,7 +12,7 @@ function App() {
   const [todoList, setTodoList] = useState([]);
 
   const getTodoList = () => {
-    Axios.get(process.env.REACT_APP_LOCALHOST).then((response) => {
+    Axios.get(process.env.REACT_APP_LOCALHOST+"/todos").then((response) => {
       setTodoList(response.data);
     });
   };
