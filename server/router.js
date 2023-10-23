@@ -37,7 +37,7 @@ router.post("/todos", async (req, res) => {
 // Retrieve a list of TODO items
 router.get("/todos", async (req, res) => {
   try {
-    const query = "SELECT * FROM TodoItems";
+    const query = "SELECT * FROM TodoItems ORDER BY todo_id ASC";
     const result = await pool.query(query);
     res.json(result.rows);
   } catch (error) {
