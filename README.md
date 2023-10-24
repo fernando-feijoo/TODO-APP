@@ -47,7 +47,7 @@ SSL_ENABLED=true
 4. Open a terminal in the `server` folder and run the following commands:
 
 ```zsh
-node install
+npm install
 ```
 
 5. Then, run the following command to start the server application:
