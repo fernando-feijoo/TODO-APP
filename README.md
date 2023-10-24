@@ -47,17 +47,22 @@ SSL_ENABLED=true
 4. Open a terminal in the `server` folder and run the following commands:
 
 ```zsh
-npm install express pg dotenv cors
+node install
+```
+
+5. Then, run the following command to start the server application:
+
+```zsh
 node index
 ```
 
-5. Open another terminal in the `client` folder and run the following command to install Bootstrap:
+6. Open another terminal in the `client` folder and run the following command to install Bootstrap:
 
 ```zsh
-npm install react-bootstrap bootstrap
+npm install
 ```
 
-6. Then, run the following command to start the client application:
+7. Then, run the following command to start the client application:
 
 ```zsh
 npm start
