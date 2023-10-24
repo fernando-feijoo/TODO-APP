@@ -3,18 +3,25 @@ import pool from "./index.js";
 
 const router = express.Router();
 
-// #region Test
+// #region Home
 
 router.get("/", (req, res) => {
-  res.send("This is the home page");
+  res.send("I hope the best for this job. Pray 🙏🏻");
 });
 
-router.get("/ping", async (req, res) => {
-  const result = await pool.query("SELECT NOW()");
-  return res.json(result.rows[0]);
-});
+// #endregion Home
 
-// #endregion Test
+// Retrieve a list of TODO items
+router.get("/todos", async (req, res) => {
+  try {
+    const query = "SELECT * FROM TodoItems ORDER BY todo_id ASC";
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error retrieving the list of TODO items" });
+  }
+});
 
 // Create a new TODO item
 router.post("/todos", async (req, res) => {
@@ -31,18 +38,6 @@ router.post("/todos", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error creating a new TODO item" });
-  }
-});
-
-// Retrieve a list of TODO items
-router.get("/todos", async (req, res) => {
-  try {
-    const query = "SELECT * FROM TodoItems ORDER BY todo_id ASC";
-    const result = await pool.query(query);
-    res.json(result.rows);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error retrieving the list of TODO items" });
   }
 });
 
@@ -99,6 +94,35 @@ router.delete("/todos/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error deleting a TODO item" });
+  }
+});
+
+router.get("/todos/categories", async (req, res) => {
+  try {
+    const query =
+      "SELECT DISTINCT category FROM TodoItems ORDER BY category ASC";
+    const result = await pool.query(query);
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Error retrieving the list of unique categories" });
+  }
+});
+
+router.get("/todos/categories/:categoryName", async (req, res) => {
+  try {
+    const { categoryName } = req.params;
+    const query =
+      "SELECT * FROM TodoItems WHERE category = $1 ORDER BY todo_id ASC";
+    const result = await pool.query(query, [categoryName]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Error retrieving the items for the specified category" });
   }
 });
 

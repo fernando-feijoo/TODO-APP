@@ -18,7 +18,6 @@ const pool = new pg.Pool({
 app.use(express.json());
 
 app.use('/', router);
-app.use('/ping', router);
 app.use('/todos', router);
 
 app.listen(4000);

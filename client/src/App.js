@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -9,9 +9,11 @@ function App() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [completed, setCompleted] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const [editList, setEditList] = useState(false);
   const [todoList, setTodoList] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
 
   const getTodoList = () => {
     Axios.get(process.env.REACT_APP_LOCALHOST + "/todos").then((response) => {
@@ -19,7 +21,39 @@ function App() {
     });
   };
 
-  const add = () => {
+  const loadItemsByCategory = (categoryName) => {
+    Axios.get(
+      process.env.REACT_APP_LOCALHOST + `/todos/categories/${categoryName}`
+    ).then((response) => {
+      setTodoList(response.data);
+    });
+  };
+
+  useEffect(() => {
+    getCategories();
+    getTodoList();
+  }, []);
+
+  const handleCategoryChange = (e) => {
+    const newCategory = e.target.value;
+    setSelectedCategory(newCategory);
+
+    if (newCategory) {
+      loadItemsByCategory(newCategory);
+    } else {
+      getTodoList();
+    }
+  };
+
+  const getCategories = () => {
+    Axios.get(process.env.REACT_APP_LOCALHOST + "/todos/categories").then(
+      (response) => {
+        setCategoryList(response.data);
+      }
+    );
+  };
+
+  const addTodo = () => {
     Axios.post(process.env.REACT_APP_LOCALHOST + "/todos", {
       title: title,
       description: description,
@@ -28,32 +62,67 @@ function App() {
     })
       .then(() => {
         getTodoList();
-        // Reset the values of the form fields
         resetForm();
+        getCategories();
       })
       .catch((error) => {
         console.error("Error in the request:", error);
       });
   };
 
-  const update = () => {
+  const updateTodo = () => {
     Axios.put(`${process.env.REACT_APP_LOCALHOST}/todos/${todoId}`, {
       title: title,
       description: description,
       category: category,
-      completed: completed, // Invert the value
+      completed: completed,
     })
       .then(() => {
-        getTodoList(); // Refresca la lista después de la actualización
+        getTodoList();
         resetForm();
+        getCategories();
       })
       .catch((error) => {
         console.error("Error in the request:", error);
-        console.log("todo_id:", todoId);
       });
   };
 
-    
+  const patchTodo = (val) => {
+    return () => {
+      const updatedCompleted = !val.completed;
+      Axios.patch(`${process.env.REACT_APP_LOCALHOST}/todos/${val.todo_id}`, {
+        completed: updatedCompleted,
+      })
+        .then(() => {
+          if (!selectedCategory) {
+            getTodoList();
+          } else {
+            loadItemsByCategory(selectedCategory);
+          }
+          resetForm();
+          getCategories();
+        })
+        .catch((error) => {
+          console.error("Error in the request:", error);
+        });
+    };
+  };
+  const handleDelete = (todoId) => {
+    deleteTodo(todoId);
+  };
+
+  const deleteTodo = (todoId) => {
+    Axios.delete(`${process.env.REACT_APP_LOCALHOST}/todos/${todoId}`)
+      .then(() => {
+        getTodoList();
+        resetForm();
+        getCategories();
+      })
+      .catch((error) => {
+        console.error("Error in the request:", error);
+      });
+  };
+
   const edit = (val) => {
     setEditList(true);
 
@@ -62,7 +131,6 @@ function App() {
     setDescription(val.description);
     setCategory(val.category);
     setCompleted(val.completed);
-
   };
 
   const resetForm = () => {
@@ -73,8 +141,6 @@ function App() {
     setCompleted(false);
     setEditList(false);
   };
-
-  getTodoList();
 
   return (
     <div className="container mt-4">
@@ -135,30 +201,54 @@ function App() {
         <div className="card-footer text-muted mt-3">
           {editList ? (
             <div>
-              <button className="btn btn-warning m-2" onClick={update}>
+              <button className="btn btn-warning me-3" onClick={updateTodo}>
                 Edit
               </button>
 
-              <button className="btn btn-info m-2" onClick={resetForm}>
+              <button className="btn btn-info ms-3" onClick={resetForm}>
                 Cancel
               </button>
             </div>
           ) : (
-            <button className="btn btn-success" onClick={add}>
+            <button className="btn btn-success" onClick={addTodo}>
               Save
             </button>
           )}
         </div>
       </div>
 
+      <select
+        className="form-select form-select-lg mb-3 mt-3"
+        aria-label=".form-select-lg example"
+        value={selectedCategory}
+        onChange={handleCategoryChange}
+      >
+        <option value="">Select a Category</option>
+        {categoryList.map((val, index) => (
+          <option key={index} value={val.category}>
+            {val.category}
+          </option>
+        ))}
+      </select>
+
       <table className="table table-striped">
         <thead>
           <tr>
-            <th scope="col">#</th>
-            <th scope="col">Title</th>
-            <th scope="col">Description</th>
-            <th scope="col">Category</th>
-            <th scope="col">Completed/Incomplete</th>
+            <th className="text-center" scope="col">
+              #
+            </th>
+            <th className="text-center" scope="col">
+              Title
+            </th>
+            <th className="text-center" scope="col">
+              Description
+            </th>
+            <th className="text-center" scope="col">
+              Category
+            </th>
+            <th className="text-center" scope="col">
+              Completed/Incomplete
+            </th>
             <th scope="col">Options</th>
           </tr>
         </thead>
@@ -174,20 +264,7 @@ function App() {
                   <input
                     type="checkbox"
                     checked={val.completed}
-                    onChange={() => {
-                      Axios.put(
-                        `${process.env.REACT_APP_LOCALHOST}/todos/${val.todo_id}`,
-                        {
-                          title: val.title,
-                          description: val.description,
-                          category: val.category,
-                          completed: !val.completed, // Invert the value
-                        }
-                      ).then(() => {
-                        getTodoList(); // Refresca la lista después de la actualización
-                        resetForm();
-                      });
-                    }}
+                    onChange={patchTodo(val)}
                   />
                 </td>
                 <td>
@@ -205,7 +282,11 @@ function App() {
                     >
                       Edit
                     </button>
-                    <button type="button" className="btn btn-danger">
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(val.todo_id)}
+                      className="btn btn-danger"
+                    >
                       Delete
                     </button>
                   </div>
