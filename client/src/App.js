@@ -33,11 +33,6 @@ function App() {
     });
   };
 
-  useEffect(() => {
-    getCategories();
-    getTodoList();
-  }, []);
-
   const handleCategoryChange = (e) => {
     const newCategory = e.target.value;
     setSelectedCategory(newCategory);
@@ -145,6 +140,11 @@ function App() {
     setCompleted(false);
     setEditList(false);
   };
+
+  useEffect(() => {
+    getCategories();
+    getTodoList();
+  }, []);
 
   return (
     <div className="container mt-4">
