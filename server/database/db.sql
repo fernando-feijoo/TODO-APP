@@ -14,5 +14,4 @@ CREATE TABLE IF NOT EXISTS
         completed BOOLEAN DEFAULT 'false'
     );
 
-INSERT INTO TodoItems (title, description, category)
-VALUES ('My first todo item', 'This is my first todo item.', 'Personal');
+ALTER SEQUENCE TodoItems_todo_id_seq RESTART WITH 1;

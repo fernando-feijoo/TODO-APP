@@ -15,6 +15,10 @@ function App() {
   const [todoList, setTodoList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
 
+  const titleWOS = title.trim();
+  const descriptionWOS = description.trim();
+  const categoryWOS = category.trim();
+
   const getTodoList = () => {
     Axios.get(process.env.REACT_APP_LOCALHOST + "/todos").then((response) => {
       setTodoList(response.data);
@@ -55,9 +59,9 @@ function App() {
 
   const addTodo = () => {
     Axios.post(process.env.REACT_APP_LOCALHOST + "/todos", {
-      title: title,
-      description: description,
-      category: category,
+      title: titleWOS,
+      description: descriptionWOS,
+      category: categoryWOS,
       completed: completed,
     })
       .then(() => {
@@ -72,9 +76,9 @@ function App() {
 
   const updateTodo = () => {
     Axios.put(`${process.env.REACT_APP_LOCALHOST}/todos/${todoId}`, {
-      title: title,
-      description: description,
-      category: category,
+      title: titleWOS,
+      description: descriptionWOS,
+      category: categoryWOS,
       completed: completed,
     })
       .then(() => {
