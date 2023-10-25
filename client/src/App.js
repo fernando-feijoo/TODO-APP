@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import Axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 
+import Swal from "sweetalert2";
+
 function App() {
   const [todoId, setTodoId] = useState();
   const [title, setTitle] = useState("");
@@ -63,6 +65,7 @@ function App() {
         getTodoList();
         resetForm();
         getCategories();
+        Swal.fire("Good job!", "New Data Added", "success");
       })
       .catch((error) => {
         console.error("Error in the request:", error);
@@ -80,6 +83,7 @@ function App() {
         getTodoList();
         resetForm();
         getCategories();
+        Swal.fire("Good job!", "Updated Data", "success");
       })
       .catch((error) => {
         console.error("Error in the request:", error);
@@ -100,6 +104,12 @@ function App() {
           }
           resetForm();
           getCategories();
+          Swal.fire({
+            title: "<strong>Good job!</strong>",
+            html: "<i>Marked Data</i>",
+            icon: "success",
+            timer: 3000,
+          });
         })
         .catch((error) => {
           console.error("Error in the request:", error);
@@ -116,6 +126,7 @@ function App() {
         getTodoList();
         resetForm();
         getCategories();
+        Swal.fire("Good job!", "Deleted Data", "success");
       })
       .catch((error) => {
         console.error("Error in the request:", error);
