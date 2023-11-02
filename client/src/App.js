@@ -17,9 +17,9 @@ function App() {
   const [todoList, setTodoList] = useState([]);
   const [categoryList, setCategoryList] = useState([]);
 
-  const titleWOS = title.trim();
-  const descriptionWOS = description.trim();
-  const categoryWOS = category.trim();
+  const titleWOS = title.trim().toUpperCase();
+  const descriptionWOS = description.trim().toUpperCase();
+  const categoryWOS = category.trim().toUpperCase();
 
   const getTodoList = () => {
     Axios.get(process.env.REACT_APP_LOCALHOST + "/todos").then((response) => {
@@ -55,21 +55,39 @@ function App() {
   };
 
   const addTodo = () => {
-    Axios.post(process.env.REACT_APP_LOCALHOST + "/todos", {
-      title: titleWOS,
-      description: descriptionWOS,
-      category: categoryWOS,
-      completed: completed,
-    })
-      .then(() => {
-        getTodoList();
-        resetForm();
-        getCategories();
-        Swal.fire("Good job!", "New Data Added", "success");
+    if (!titleWOS || !descriptionWOS || !categoryWOS) {
+      let errorMessage = "";
+
+      if (!titleWOS) {
+        errorMessage = "Missing title. ";
+      }
+
+      if (!descriptionWOS) {
+        errorMessage += "Missing description. ";
+      }
+
+      if (!categoryWOS) {
+        errorMessage += "Missing category. ";
+      }
+
+      Swal.fire("Warning", errorMessage, "warning");
+    } else {
+      Axios.post(process.env.REACT_APP_LOCALHOST + "/todos", {
+        title: titleWOS,
+        description: descriptionWOS,
+        category: categoryWOS,
+        completed: completed,
       })
-      .catch((error) => {
-        console.error("Error in the request:", error);
-      });
+        .then(() => {
+          getTodoList();
+          resetForm();
+          getCategories();
+          Swal.fire("Good job!", "New Data Added", "success");
+        })
+        .catch((error) => {
+          console.error("Error in the request:", error);
+        });
+    }
   };
 
   const updateTodo = () => {
@@ -121,16 +139,28 @@ function App() {
   };
 
   const deleteTodo = (todoId) => {
-    Axios.delete(`${process.env.REACT_APP_LOCALHOST}/todos/${todoId}`)
-      .then(() => {
-        getTodoList();
-        resetForm();
-        getCategories();
-        Swal.fire("Good job!", "Deleted Data", "success");
-      })
-      .catch((error) => {
-        console.error("Error in the request:", error);
-      });
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to delete this item?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Axios.delete(`${process.env.REACT_APP_LOCALHOST}/todos/${todoId}`)
+          .then(() => {
+            getTodoList();
+            resetForm();
+            getCategories();
+            Swal.fire("Good job!", "Deleted Data", "success");
+          })
+          .catch((error) => {
+            console.error("Error in the request:", error);
+          });
+      }
+    });
   };
 
   const edit = (val) => {
@@ -246,71 +276,73 @@ function App() {
         ))}
       </select>
 
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th className="text-center" scope="col">
-              #
-            </th>
-            <th className="text-center" scope="col">
-              Title
-            </th>
-            <th className="text-center" scope="col">
-              Description
-            </th>
-            <th className="text-center" scope="col">
-              Category
-            </th>
-            <th className="text-center" scope="col">
-              Completed/Incomplete
-            </th>
-            <th scope="col">Options</th>
-          </tr>
-        </thead>
-        <tbody>
-          {todoList.map((val, key) => {
-            return (
-              <tr key={val.todo_id}>
-                <th>{val.todo_id}</th>
-                <td>{val.title}</td>
-                <td>{val.description}</td>
-                <td>{val.category}</td>
-                <td className="text-center">
-                  <input
-                    type="checkbox"
-                    checked={val.completed}
-                    onChange={patchTodo(val)}
-                  />
-                </td>
-                <td>
-                  <div
-                    className="btn-group"
-                    role="group"
-                    aria-label="Basic example"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        edit(val);
-                      }}
-                      className="btn btn-info"
+      <div className="table-responsive">
+        <table className="table table-striped">
+          <thead>
+            <tr>
+              <th className="text-center" scope="col">
+                #
+              </th>
+              <th className="text-center" scope="col">
+                Title
+              </th>
+              <th className="text-center" scope="col">
+                Description
+              </th>
+              <th className="text-center" scope="col">
+                Category
+              </th>
+              <th className="text-center" scope="col">
+                Completed/Incomplete
+              </th>
+              <th scope="col">Options</th>
+            </tr>
+          </thead>
+          <tbody>
+            {todoList.map((val, key) => {
+              return (
+                <tr key={val.todo_id}>
+                  <td data-label="#">{val.todo_id}</td>
+                  <td data-label="Title">{val.title}</td>
+                  <td data-label="Description">{val.description}</td>
+                  <td data-label="Category">{val.category}</td>
+                  <td data-label="Completed/Incomplete" className="text-center">
+                    <input
+                      type="checkbox"
+                      checked={val.completed}
+                      onChange={patchTodo(val)}
+                    />
+                  </td>
+                  <td data-label="Options">
+                    <div
+                      className="btn-group"
+                      role="group"
+                      aria-label="Basic example"
                     >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(val.todo_id)}
-                      className="btn btn-danger"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          edit(val);
+                        }}
+                        className="btn btn-info"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(val.todo_id)}
+                        className="btn btn-danger"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
